@@ -34,8 +34,10 @@ float[] shipZkeys = {0.5, 1.5};
 //{ -1.5,0.25,1.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom middle
 //{ -2.5,0.25,1.5, PI/2, 0, 0, PI, PI },                    //***special bottom left
   
-PImage floortext, tiletext, hardwoodtext, snowtext; 
-
+PImage floortext, tiletext, hardwoodtext, cosmictext; 
+boolean jump = true;   //snowman
+float bounceSnow = 0;  //snowman bounce var
+int cosmicRotate = 0;  //cosmic triangle rotation angle
 
 void setup() {
   size(640, 640, P3D);
@@ -45,7 +47,7 @@ void setup() {
   floortext = loadImage("assets/floor.jpg");
   tiletext = loadImage("assets/tile.jpg");
   hardwoodtext = loadImage("assets/hardwood.jpg");
-  snowtext = loadImage("assets/whiteSnow.jpg");
+  cosmictext = loadImage("assets/cosmic.jpg");
   textureWrap(REPEAT);
 }
 
@@ -97,10 +99,8 @@ void draw() {
   //LEVEL
   pushMatrix();  //start level
   
-  fill(60);
-  float tableWidth = 3.0;
-  float tableHeight = 0.5;
-  float tableLength = 62.0;  //max +3 in frustrum, need max +6 for ortho, need min 21 (42 middle. 40 test)
+  float tableHeight = 0.5;  //adjustment for boxes to shift to be above plane
+  //max +3 in frustrum, need max +6 for ortho, need min 21 (42 middle. 40 test)
 
   
   
@@ -173,7 +173,6 @@ void draw() {
     endShape();
     
     swapTexture = (swapTexture+1) % 3;
-    println(swapTexture);
   }
   
   popMatrix();  //end plane
@@ -190,7 +189,7 @@ void draw() {
     x = keys[i][0];       //lerp(keys[currKey][0], keys[nextKey][0], t);
     y = keys[i][1];       //lerp(keys[currKey][1], keys[nextKey][1], t);
     z = keys[i][2];       //lerp(keys[currKey][2], keys[nextKey][2], t);
-    translate(0, y, z);
+    translate(x, y, z);
     
     //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
     //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
@@ -201,6 +200,94 @@ void draw() {
     box(barrierWidth, barrierHeight, barrierLength);  //barrier itself
     popMatrix();  //end barrier
   }
+  
+  //SNOWMAN
+  pushMatrix();  //SnowmanAll
+
+  //jumping animation
+  if (jump) {
+    if (bounceSnow < 1) {
+      bounceSnow += 0.05;
+    } else {
+      jump = !jump;
+    }
+  } else {
+    if (bounceSnow > 0) {
+      bounceSnow -= 0.05;
+    } else {
+      jump = !jump;
+    }
+  }
+  
+  //DRAW SNOMAN
+  for (int i = 0; i < 3; i++) {
+    pushMatrix();  //SnowmanDraw
+    
+    translate(1, bounceSnow, -6.5-(21.0*i));  //translate to grid locations
+    noStroke();
+    fill(230, 230, 230);  
+    translate(0, 0.5, 0);   //base sphere
+    sphere(0.5);
+    translate(0, 0.75, 0);  //torso sphere
+    sphere(0.3);
+    translate(0, 0.45, 0);  //head sphere
+    sphere(0.2);
+    fill(255, 140, 0);
+    translate(0, 0, 0.3);   //carrot nose
+    box(0.05, 0.05, 0.25);
+  
+    popMatrix();  //endSnowmanDraw
+  }
+  popMatrix();  //endSnowmanAll
+  
+  
+  //DRAW COSMIC TRIANGLE
+  if (cosmicRotate > 360) {
+    cosmicRotate = 0;
+  } else {
+    cosmicRotate += 3;
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    pushMatrix();  //start cosmic triangle
+    translate(-1, 0.75, -6.5-(21.0*i));
+    rotateY(radians(cosmicRotate)); 
+    
+    beginShape(TRIANGLES);
+    texture(cosmictext);
+    shininess(1.0);
+    ambient(150,150,150);
+    vertex(0,0.5,0,1,1);
+    vertex(0.5, -0.5, 0.5, 0, 0);
+    vertex(-0.5, -0.5, 0.5, 0, 1);
+    
+    vertex(0,0.5,0,1,1);
+    vertex(-0.5, -0.5, 0.5, 0, 0);
+    vertex(-0.5, -0.5, -0.5, 0, 1);
+    
+    vertex(0,0.5,0,1,1);
+    vertex(-0.5, -0.5, -0.5, 0, 0);
+    vertex(0.5, -0.5, -0.5, 0, 1);
+    
+    vertex(0,0.5,0,1,1);
+    vertex(0.5, -0.5, -0.5, 0, 0);
+    vertex(0.5, -0.5, 0.5, 0, 1);
+    endShape();
+    
+    beginShape(QUADS);
+    texture(cosmictext);
+    shininess(1.0);
+    ambient(150,150,150);
+    //bottom face
+    vertex(0.5, -0.5, 0.5, 0, 1);
+    vertex(-0.5, -0.5, 0.5, 1, 1);
+    vertex(-0.5, -0.5, -0.5, 1, 0);
+    vertex(0.5, -0.5, -0.5, 0, 0);
+    endShape();
+    
+    popMatrix();  //end cosmic triangle
+  }
+  
   
   //SPECIAL END MARKER
   pushMatrix();  //start special end marker
@@ -219,14 +306,12 @@ void draw() {
   float barrierLength = 0.9;
   box(barrierWidth, barrierHeight, barrierLength);  //special end marker
   popMatrix();  //end special end marker
+  ///////////////////////////////////////  
     
-  
+    
   popMatrix();  //end table
-  
-  
   popMatrix();  //end level
   
-
   
   //SHIP
   pushMatrix();  //start ship
@@ -273,13 +358,15 @@ void draw() {
 float[][] keys = {
   { -1.5, 0.25, 0 },           //TABLE -> middle of field (half height of base move up, Z always >= 0.25)
   { 0, 0.5, -2.5 },            //first square barrier
-  { 0, 0.5, -10.5 },           //second square barrier
+  { 1, 0.5, -10.5 },           //second square barrier
+  { -1, 0.5, -16.5 },          //third square barrier
   { 0, 0.5, -23.5 },           //***special repeat first square barrier (-21.0)
-  { 0, 0.5, -31.5 },           //***special repeat second square barrier (-21.0)
-  { 0, 0.5, -44.5 },           //***special repeat first square barrier (-21.0)
-  { 0, 0.5, -52.5 },           //***special repeat second square barrier (-21.0)
-  { 0, 0.5, -20.5 },           //***special end value at 20
-  
+  { 1, 0.5, -31.5 },           //***special repeat second square barrier (-21.0)
+  { -1, 0.5, -37.5 },          //***special repeat third square barrier(-21.0)
+  { 0, 0.5, -44.5 },           //***special repeat first square barrier (-42.0)
+  { 1, 0.5, -52.5 },           //***special repeat second square barrier (-42.0)
+  { -1, 0.5, -58.5 },          //***special repeat third square barrier(-42.0)
+  { 0, 0.5, -20.5 },           //***special end value at 20 (used for testing)
 };
 
 void keyPressed() {
