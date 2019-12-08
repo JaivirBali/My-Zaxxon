@@ -29,6 +29,7 @@ boolean jump = true;   //snowman
 float bounceSnow = 0;  //snowman bounce var
 int cosmicRotate = 0;  //cosmic triangle rotation angle
 
+ParticleSystem ps;
 
 //Everything must be repeated 3x for barriers
 float[][] keys = {
@@ -58,12 +59,13 @@ void setup() {
   hardwoodtext = loadImage("assets/hardwood.jpg");
   cosmictext = loadImage("assets/cosmic.jpg");
   textureWrap(REPEAT);
+  
 }
 
 void draw() {
   clear();
   resetMatrix();
-  
+    
   if (t0) {
     t0time = millis();
   }
@@ -77,6 +79,7 @@ void draw() {
   camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ); //set the camera position
   
   translate(defaultTranslateX, defaultTranslateY, defaultTranslateZ); //move everything back so its viewable
+  
   
   //Axis for testing purposes (commented out)
   strokeWeight(1.0);
@@ -322,20 +325,29 @@ void draw() {
   
   translate(x, y, z);
   scale(0.33);
-  rotateX(-PI/2);
-  rotateY(0);
-  rotateZ(0);
-  //box(1.0, tableHeight, 1.0);  //ship itself
+  rotateX(-PI/2);     //start at -PI/2 (forward = -3*PI/5, backward = -2*PI/5)
+  rotateY(0);      //start at 0 (right = PI/4, left = -PI/4)
   
   pushMatrix();  //start Ship 2.0
-  translate(0, -tableHeight*2, 0);
+  
+  translate(0, -tableHeight, 0);
   fill(199,21,133);
   shininess(0.3);
-  box(0.5);
-  translate(0,tableHeight, 0);
+  box(0.5);  //engine of ship
+  
+  //draw particle system
+  if (ps != null) {
+    ps.addParticle();
+    ps.run();
+  } else {
+    ps = new ParticleSystem(x+1.5, y-(2.0*tableHeight), z);
+  }
+  
+  translate(0,tableHeight/2, 0);
+  
   fill(100,0,50);
   
-  beginShape(TRIANGLES);
+  beginShape(TRIANGLES);  //rest of body of ship
   shininess(0.5);
   //bottom
   vertex(0, 0, 0,1,1);
@@ -512,4 +524,95 @@ void setView1() {
   upX = 0; 
   upY = 1;
   upZ = 0;
+}
+
+
+class ParticleSystem {
+  ArrayList<Spark> sparks;
+  float originX;
+  float originY;
+  float originZ;
+
+  ParticleSystem(float originX, float originY, float originZ) {
+    this.originX = originX;
+    this.originY = originY;
+    this.originZ = originZ;
+    sparks = new ArrayList<Spark>();
+  }
+
+  void addParticle() {
+    sparks.add(new Spark(originX, originY, originZ));
+  }
+
+  void run() {
+    for (int i = sparks.size()-1; i >= 0; i--) {
+      Spark p = sparks.get(i);
+      p.run();
+      if (p.isDead()) {
+        sparks.remove(i);
+      }
+    }
+  }
+}
+
+
+class Spark {
+  float positionX;
+  float positionY;
+  float positionZ;
+  float velocityX;
+  float velocityY;
+  float velocityZ;
+  float gravity;
+  float lifespan;
+
+  Spark(float originX, float originY, float originZ) {
+    positionX = originX;
+    positionY = originY;
+    positionZ = originZ;
+    gravity = -0.0009;
+    velocityX = random(-0.0075, 0.0075);
+    velocityY = random(0, 0.02);
+    velocityZ = random(-0.0075, 0.0075);
+    lifespan = 255.0;
+  }
+
+  void run() {
+    update();
+    display();
+  }
+
+  //update position
+  void update() {
+    velocityY += gravity;
+    positionX += velocityX;
+    positionY += velocityY;
+    positionZ += velocityZ;
+    lifespan -= 2.5;
+  }
+
+  //draw spark
+  void display() {
+    float r, g, b;
+    r = random(0,256);
+    g = random(0,256);
+    b = random(0,256);
+
+    stroke(0, lifespan);
+    fill(r, g, b, lifespan);
+    
+    pushMatrix();
+    translate(positionX, positionY, positionZ);
+    box(0.075, 0.075, 0.075);
+    popMatrix();
+  }
+
+  //determine if spark should keep being drawn
+  boolean isDead() {
+    if (lifespan < 0.0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
