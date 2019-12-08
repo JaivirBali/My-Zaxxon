@@ -120,11 +120,11 @@ void draw() {
   translate(0, 0.25, 0);  //plane
   beginShape(QUADS);
   //texture(floortext);
-  fill(255);
-  vertex(-1.5, 0, -40, 0, 1);
+  fill(100,0,50);
+  vertex(-1.5, 0, -60, 0, 1);
   vertex(-1.5, 0, 6, 1, 1);
   vertex(1.5, 0, 6, 1, 0);
-  vertex(1.5, 0, -40, 0, 0);
+  vertex(1.5, 0, -60, 0, 0);
   endShape();
   
   popMatrix();  //end plane
@@ -220,11 +220,15 @@ void draw() {
   }
 } //<>//
 
+//Everything must be repeated 3x
 float[][] keys = {
   { -1.5, 0.25, 0 },           //TABLE -> middle of field (half height of base move up, Z always >= 0.25)
   { 0, 0.5, -2.5 },            //first square barrier
   { 0, 0.5, -10.5 },           //second square barrier
   { 0, 0.5, -23.5 },           //***special repeat first square barrier (-21.0)
+  { 0, 0.5, -31.5 },           //***special repeat second square barrier (-21.0)
+  { 0, 0.5, -44.5 },           //***special repeat first square barrier (-21.0)
+  { 0, 0.5, -52.5 },           //***special repeat second square barrier (-21.0)
   { 0, 0.5, -20.5 },           //***special end value at 20
   
 };
