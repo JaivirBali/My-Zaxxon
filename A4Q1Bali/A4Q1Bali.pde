@@ -34,13 +34,19 @@ float[] shipZkeys = {0.5, 1.5};
 //{ -1.5,0.25,1.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom middle
 //{ -2.5,0.25,1.5, PI/2, 0, 0, PI, PI },                    //***special bottom left
   
- 
+PImage floortext, tiletext, hardwoodtext, snowtext; 
 
 
 void setup() {
   size(640, 640, P3D);
   hint(DISABLE_OPTIMIZED_STROKE);
   setView0();
+  textureMode(NORMAL);
+  floortext = loadImage("assets/floor.jpg");
+  tiletext = loadImage("assets/tile.jpg");
+  hardwoodtext = loadImage("assets/hardwood.jpg");
+  snowtext = loadImage("assets/whiteSnow.jpg");
+  textureWrap(REPEAT);
 }
 
 void draw() {
@@ -118,14 +124,57 @@ void draw() {
   pushMatrix();  //start plane
   
   translate(0, 0.25, 0);  //plane
-  beginShape(QUADS);
-  //texture(floortext);
-  fill(100,0,50);
-  vertex(-1.5, 0, -60, 0, 1);
-  vertex(-1.5, 0, 6, 1, 1);
-  vertex(1.5, 0, 6, 1, 0);
-  vertex(1.5, 0, -60, 0, 0);
-  endShape();
+  
+
+  //DRAWING TILES
+  int swapTexture = 0;
+  for (int i = 0; i < 66; i++) {
+    beginShape(QUADS);      //LEFT TILES
+    if (swapTexture == 0) {
+      texture(floortext);
+    } else if (swapTexture == 1) {
+      texture(tiletext);
+    } else {
+      texture(hardwoodtext);
+    }
+    
+    vertex(-1.5, 0, 5-i, 0, 1);
+    vertex(-1.5, 0, 6-i, 1, 1);
+    vertex(-0.5, 0, 6-i, 1, 0);
+    vertex(-0.5, 0, 5-i, 0, 0);
+    endShape();
+    
+    beginShape(QUADS);    //MIDDLE TILES
+    if (swapTexture == 0) {
+      texture(tiletext);
+    } else if (swapTexture == 1) {
+      texture(hardwoodtext);
+    } else {
+      texture(floortext);
+    }
+    vertex(-0.5, 0, 5-i, 0, 1);
+    vertex(-0.5, 0, 6-i, 1, 1);
+    vertex(0.5, 0, 6-i, 1, 0);
+    vertex(0.5, 0, 5-i, 0, 0);
+    endShape();
+    
+    beginShape(QUADS);    //RIGHT TILES
+    if (swapTexture == 0) {
+      texture(hardwoodtext);
+    } else if (swapTexture == 1) {
+      texture(tiletext);
+    } else {
+      texture(floortext);
+    }
+    vertex(0.5, 0, 5-i, 0, 1);
+    vertex(0.5, 0, 6-i, 1, 1);
+    vertex(1.5, 0, 6-i, 1, 0);
+    vertex(1.5, 0, 5-i, 0, 0);
+    endShape();
+    
+    swapTexture = (swapTexture+1) % 3;
+    println(swapTexture);
+  }
   
   popMatrix();  //end plane
   
