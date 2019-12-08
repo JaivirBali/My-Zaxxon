@@ -6,24 +6,28 @@ boolean perspective = true;  //toggle between perspective 1 and 2
 
 int currKey = 0;
 int nextKey = 0;
+
+boolean t0 = true;
 float t = 0;
+int t0time;
+float tmod = 0;
+//float tdelta = 0;
+  
 float x, y, z, angle;
 boolean currLerping = false;  //don't want to cancel animation while lerping
 
-float defaultTranslateX = -0.75;
-float defaultTranslateY = -0.5;
-float defaultTranslateZ = -3.5;
+
 
 int testKey = 1;
 
 float[][] keys = {
-  { -1.5,0.25,0, 0, 0, -PI/2, 0, 0 },    //***special middle of table (half height of base move up)
-  { -0.5,0.25,1, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top right
-  { -1.5,0.25,1, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top middle
-  { -2.5,0.25,1, PI/2, 0, 0, PI, PI },                    //***special top left
-  { -0.5,0.25,2, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom right
-  { -1.5,0.25,2, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom middle
-  { -2.5,0.25,2, PI/2, 0, 0, PI, PI },                    //***special bottom left
+  { -1.5,0.25,-4.0, 0, 0, -PI/2, 0, 0 },    //***special middle of table (half height of base move up)
+  { -0.5,0.25,0.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top right
+  { -1.5,0.25,0.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top middle
+  { -2.5,0.25,0.5, PI/2, 0, 0, PI, PI },                    //***special top left
+  { -0.5,0.25,1.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom right
+  { -1.5,0.25,1.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special bottom middle
+  { -2.5,0.25,1.5, PI/2, 0, 0, PI, PI },                    //***special bottom left
   { -1,0.25,-5, (3*PI)/4, -PI/4, 0, PI/2, PI/3 },    //***special top right edge of table
   { -3,0.25,-5, PI, 0, -PI/4, 0, PI/4 },    //***special top left edge of table
 };
@@ -38,6 +42,11 @@ void setup() {
 void draw() {
   clear();
   resetMatrix();
+  
+  if (t0) {
+    t0time = millis();
+  }
+  
   if(perspective){
     ortho(-1, 1, 1, -1, 2, 10);
   }else{
@@ -81,9 +90,19 @@ void draw() {
   fill(60);
   float tableWidth = 3.0;
   float tableHeight = 0.5;
-  float tableLength = 5.0;
+  float tableLength = 20.0;  //max +3 in frustrum, need max +6 for ortho
+
   
-  translate(keys[0][0], keys[0][1] - tableHeight, keys[0][2]);  //static middle location
+  if (t < 1.10) {
+    tmod = t - ((t*100.0 % 10.0) / 100.0);
+  }
+  println("tmod = "+ tmod);
+  println("t = "+ t);
+  //println("tdelta = " + tdelta);
+  
+  z = lerp(keys[0][2], 10.0, tmod);
+  //z = keys[0][2];
+  translate(keys[0][0], keys[0][1] - tableHeight, z);  //table moves
   
   box(tableWidth, tableHeight, tableLength);  //table
   
@@ -109,8 +128,21 @@ void draw() {
   popMatrix();  //end base
   
   popMatrix();  //end scene stuff
+  
+  
+  t  = (millis() - t0time) / 10000.0;
+  if (t >= 1.10) {
+    t = 0;       //set to 0 to reset, set to 1 to make it stay at end
+    tmod = 0;
+    t0 = true;  //set to false to make it stop at end, normally set to true
+  } else {
+    t0 = false;
+  }
 } //<>//
 
+float defaultTranslateX = -0.70;
+float defaultTranslateY = -0.5;
+float defaultTranslateZ = -2.5;
 
 void keyPressed() {
   switch(key) {
@@ -118,9 +150,9 @@ void keyPressed() {
       perspective = !perspective;
       
       if (perspective == true) {
-        defaultTranslateX = -0.75;
+        defaultTranslateX = -0.70;
         defaultTranslateY = -0.5;
-        defaultTranslateZ = -1.5;
+        defaultTranslateZ = -2.5;
         setView0();
       } else {
         perspective = false;
