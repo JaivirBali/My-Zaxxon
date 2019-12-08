@@ -9,10 +9,11 @@ int nextKey = 0;
 boolean t0 = true;
 float t = 0;
 int t0time;
+int pauseTime;
 float tmod = 0;
   
 float x, y, z, angle;
-boolean currLerping = false;  //don't want to cancel animation while lerping
+boolean currLerping = true;  //don't want to cancel animation while lerping
 
 //CAMERA default translates
 float defaultTranslateX = -0.70;
@@ -101,9 +102,8 @@ void draw() {
     //tmod = t - ((t*100.0 % 10.0) / 100.0);
     tmod = t - ((t*100.0 % 5.0) / 100.0);
   }
-  println("tmod = "+ tmod);
-  println("t = "+ t);
-  //println("tdelta = " + tdelta);
+  //println("tmod = "+ tmod);
+  //println("t = "+ t);
   
   z = lerp(keys[0][2], 20.0, tmod);
   //z = keys[0][2];
@@ -140,22 +140,22 @@ void draw() {
   }
   
   //SPECIAL END MARKER
-  //pushMatrix();  //start special end marker
-  //fill(200,0,0);
+  pushMatrix();  //start special end marker
+  fill(200,0,0);
   
-  //x = keys[keys.length-1][0];       //lerp(keys[currKey][0], keys[nextKey][0], t);
-  //y = keys[keys.length-1][1];       //lerp(keys[currKey][1], keys[nextKey][1], t);
-  //z = keys[keys.length-1][2];       //lerp(keys[currKey][2], keys[nextKey][2], t);
-  //translate(0, y, z);
+  x = keys[keys.length-1][0];       //lerp(keys[currKey][0], keys[nextKey][0], t);
+  y = keys[keys.length-1][1];       //lerp(keys[currKey][1], keys[nextKey][1], t);
+  z = keys[keys.length-1][2];       //lerp(keys[currKey][2], keys[nextKey][2], t);
+  translate(0, y, z);
   
-  ////angle = lerp(keys[currKey][3], keys[nextKey][3], t);
-  ////rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
+  //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
+  //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
 
-  //float barrierWidth = 1.0;
-  //float barrierHeight = 0.5;
-  //float barrierLength = 1.0;
-  //box(barrierWidth, barrierHeight, barrierLength);  //special end marker
-  //popMatrix();  //end special end marker
+  float barrierWidth = 1.0;
+  float barrierHeight = 0.5;
+  float barrierLength = 1.0;
+  box(barrierWidth, barrierHeight, barrierLength);  //special end marker
+  popMatrix();  //end special end marker
     
   
   popMatrix();  //end table
@@ -194,8 +194,9 @@ void draw() {
   //////////////////////////////////////////////////
   popMatrix();  //end scene stuff
   
-  
-  t  = (millis() - t0time) / 20000.0;
+  if (currLerping == true) {
+    t  = (millis() - t0time) / 20000.0;
+  }
   if (t >= 1.05) {
     t = 0;       //set to 0 to reset, set to 1 to make it stay at end
     tmod = 0;
@@ -209,17 +210,10 @@ float[][] keys = {
   { -1.5, 0.25, 0 },           //TABLE -> middle of field (half height of base move up, Z always >= 0.25)
   { 0, 0.5, -2.5 },            //first square barrier
   { 0, 0.5, -10.5 },           //second square barrier
-  { 0, 0.5, -23.5 },           //***special repeat first square barrier
+  { 0, 0.5, -23.5 },           //***special repeat first square barrier (-21.0)
   { 0, 0.5, -20.5 },           //***special end value at 20
   
 };
-
-////SHIP keys and curr bins/values
-//float[] shipXkeys = {-2.5, -1.5, -0.5};
-//int shipX = 1;
-//float shipY = 0.25;
-//int shipZ = 0;
-//float[] shipZkeys = {0.5, 1.5};
 
 void keyPressed() {
   switch(key) {
@@ -254,6 +248,18 @@ void keyPressed() {
       if (shipX < 2) {
         shipX++;
       }
+      break;
+    case 'p':      //bottom left
+      if (currLerping == true) {
+        currLerping = false;
+        pauseTime = millis();
+        //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+      } else {
+        t0time = t0time + (millis() - pauseTime);
+        //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+        currLerping = true;
+      }
+      
       break;
   } //end switch statement
 } //end keypressed function
