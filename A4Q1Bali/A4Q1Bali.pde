@@ -20,8 +20,14 @@ boolean currLerping = false;  //don't want to cancel animation while lerping
 
 int testKey = 1;
 
+float[] shipXkeys = {-2.5, -1.5, -0.5};
+int shipX = 1;
+float shipY = 0.25;
+int shipZ = 0;
+float[] shipZkeys = {0.5, 1.5};
+
 float[][] keys = {
-  { -1.5,0.25,-4.0, 0, 0, -PI/2, 0, 0 },    //***special middle of table (half height of base move up)
+  { -1.5,0.25,0, 0, 0, -PI/2, 0, 0 },    //***special middle of table (half height of base move up)
   { -0.5,0.25,0.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top right
   { -1.5,0.25,0.5, PI/4, PI/3, (-2*PI)/3, PI/4, PI/4 },     //***special top middle
   { -2.5,0.25,0.5, PI/2, 0, 0, PI, PI },                    //***special top left
@@ -90,7 +96,7 @@ void draw() {
   fill(60);
   float tableWidth = 3.0;
   float tableHeight = 0.5;
-  float tableLength = 20.0;  //max +3 in frustrum, need max +6 for ortho
+  float tableLength = 40.0;  //max +3 in frustrum, need max +6 for ortho, need min 21 (42 middle. 40 test)
 
   
   if (t < 1.10) {
@@ -113,9 +119,13 @@ void draw() {
   pushMatrix();  //start base
   fill(0,0,200);
   
-  x = keys[testKey][0];   //lerp(keys[currKey][0], keys[nextKey][0], t);
-  y = keys[testKey][1];   //lerp(keys[currKey][1], keys[nextKey][1], t);
-  z = keys[testKey][2];   //lerp(keys[currKey][2], keys[nextKey][2], t);
+  //x = keys[testKey][0];   //lerp(keys[currKey][0], keys[nextKey][0], t);
+  //y = keys[testKey][1];   //lerp(keys[currKey][1], keys[nextKey][1], t);
+  //z = keys[testKey][2];   //lerp(keys[currKey][2], keys[nextKey][2], t);
+  
+  x = shipXkeys[shipX];   //lerp(keys[currKey][0], keys[nextKey][0], t);
+  y = shipY;              //lerp(keys[currKey][1], keys[nextKey][1], t);
+  z = shipZkeys[shipZ];   //lerp(keys[currKey][2], keys[nextKey][2], t);
   translate(x, y, z);
   
   //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
@@ -162,23 +172,21 @@ void keyPressed() {
         setView1();
       }
       break;
-    case '1':      //default, top right
-      testKey = 1;
+    case 'w':      //bottom left
+      shipZ = 0;
       break;
-    case '2':      //top middle
-      testKey = 2;
+    case 's':      //bottom left
+      shipZ = 1;
       break;
-    case '3':      //top left
-      testKey = 3;
+    case 'a':      //bottom left
+      if (shipX > 0) {
+        shipX--;
+      }
       break;
-    case '4':      //bottom right
-      testKey = 4;
-      break;
-    case '5':      //bottom middle
-      testKey = 5;
-      break;
-    case '6':      //bottom left
-      testKey = 6;
+    case 'd':      //bottom left
+      if (shipX < 2) {
+        shipX++;
+      }
       break;
   } //end switch statement
 } //end keypressed function
