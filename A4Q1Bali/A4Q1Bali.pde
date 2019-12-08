@@ -283,8 +283,8 @@ void draw() {
     
     popMatrix();  //end cosmic triangle
   }
-  //////////////////////////////////////
   
+  //////////////////////////////////////
   //SPECIAL END MARKER
   pushMatrix();  //start special end marker
   fill(200,0,0);
@@ -310,20 +310,116 @@ void draw() {
   
   //SHIP
   pushMatrix();  //start ship
-  fill(0,0,200);
+  
+
+  //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
+  //rotateX(angle);  //do X axis rotation for base (***special default of -PI/2
+  
   
   x = shipXkeys[shipX];
   y = shipY;
   z = shipZkeys[shipZ];
-  translate(x, y, z);
   
-  //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
-  //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
-
-  float baseWidth = 1.0;
-  float baseHeight = 0.5;
-  float baseLength = 1.0;
-  box(baseWidth, baseHeight, baseLength);  //ship itself
+  translate(x, y, z);
+  scale(0.33);
+  rotateX(-PI/2);
+  rotateY(0);
+  rotateZ(0);
+  //box(1.0, tableHeight, 1.0);  //ship itself
+  
+  pushMatrix();  //start Ship 2.0
+  translate(0, -tableHeight*2, 0);
+  fill(199,21,133);
+  shininess(0.3);
+  box(0.5);
+  translate(0,tableHeight, 0);
+  fill(100,0,50);
+  
+  beginShape(TRIANGLES);
+  shininess(0.5);
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(-0.4,0,0.6,0,0);
+  vertex(0.4,0,0.6,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(-0.4,0,0.6,0,0);
+  vertex(0.4,0,0.6,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(0.4,0,0.6,0,0);
+  vertex(0.6,0,0.4,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(0.4,0,0.6,0,0);
+  vertex(0.6,0,0.4,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(0.6,0,0.4,0,0);
+  vertex(0.6,0,-0.4,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(0.6,0,0.4,0,0);
+  vertex(0.6,0,-0.4,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(0.6,0,-0.4,0,0);
+  vertex(0.4,0,-0.6,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(0.6,0,-0.4,0,0);
+  vertex(0.4,0,-0.6,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(0.4,0,-0.6,0,0);
+  vertex(-0.4,0,-0.6,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(0.4,0,-0.6,0,0);
+  vertex(-0.4,0,-0.6,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(-0.4,0,-0.6,0,0);
+  vertex(-0.6,0,-0.4,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(-0.4,0,-0.6,0,0);
+  vertex(-0.6,0,-0.4,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(-0.6,0,-0.4,0,0);
+  vertex(-0.6,0,0.4,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(-0.6,0,-0.4,0,0);
+  vertex(-0.6,0,0.4,0.6,0);
+  
+  //bottom
+  vertex(0, 0, 0,1,1);
+  vertex(-0.6,0,0.4,0,0);
+  vertex(-0.4,0,0.6,0.6,0);
+  
+  //top
+  vertex(0,2,0,1,1);
+  vertex(-0.6,0,0.4,0,0);
+  vertex(-0.4,0,0.6,0.6,0);
+  endShape();
+  
+  popMatrix();  //end Ship 2.0
+  
   popMatrix();  //end ship
  
   
