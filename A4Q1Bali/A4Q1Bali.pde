@@ -8,8 +8,9 @@ float t = 0;
 int t0time;
 int pauseTime;
 float tmod = 0;
+float tship = 0;
   
-float x, y, z, angle;
+float x, y, z, angleX, angleY;
 boolean currLerping = true;  //don't want to cancel animation while lerping
 
 //CAMERA default translates
@@ -23,6 +24,8 @@ int shipX = 1;
 float shipY = 0.25;
 int shipZ = 0;
 float[] shipZkeys = {0.5, 1.5};
+float[] shipAnglesX = { -PI/2, -3*PI/5, -2*PI/5 };  //bin 1 = default, bin 2 = forward, bin 3 = backwards
+float[] shipAnglesY = { 0, -PI/4, PI/4 };  //bin 1 = default, bin 2 = left, bin 3 = right
   
 PImage floortext, tiletext, hardwoodtext, cosmictext; 
 boolean jump = true;   //snowman
@@ -325,8 +328,8 @@ void draw() {
   
   translate(x, y, z);
   scale(0.33);
-  rotateX(-PI/2);     //start at -PI/2 (forward = -3*PI/5, backward = -2*PI/5)
-  rotateY(0);      //start at 0 (right = PI/4, left = -PI/4)
+  rotateX(shipAnglesX[0]);      //start at -PI/2 (forward = -3*PI/5, backward = -2*PI/5)
+  rotateY(shipAnglesX[0]);      //start at 0 (right = PI/4, left = -PI/4)
   
   pushMatrix();  //start Ship 2.0
   
@@ -340,7 +343,7 @@ void draw() {
     ps.addParticle();
     ps.run();
   } else {
-    ps = new ParticleSystem(x+1.5, y-(2.0*tableHeight), z);
+    ps = new ParticleSystem(x+1, y-(2.0*tableHeight), z);
   }
   
   translate(0,tableHeight/2, 0);
@@ -431,13 +434,11 @@ void draw() {
   endShape();
   
   popMatrix();  //end Ship 2.0
-  
   popMatrix();  //end ship
- 
-  
-  //////////////////////////////////////////////////
   popMatrix();  //end scene stuff
   
+  
+  //LEVEL LERPING
   if (currLerping == true) {
     t  = (millis() - t0time) / 20000.0;
   }
@@ -448,8 +449,13 @@ void draw() {
   } else {
     t0 = false;
   }
+  
+  //SHIP LERPING
+  tship  = tship + 0.20 ;
+  if (tship > 1.0) {
+    tship = 0;       //set to 0 to reset
+  } 
 } //<>//
-
 
 
 void keyPressed() {
