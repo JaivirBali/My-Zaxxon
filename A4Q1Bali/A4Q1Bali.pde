@@ -11,7 +11,8 @@ float tmod = 0;
 float tship = 0;
   
 float x, y, z, angleX, angleY;
-boolean currLerping = true;  //don't want to cancel animation while lerping
+boolean currLerping = true;   //don't want to cancel animation while lerping
+boolean shipLerping = false;  //don't want to lerp when we don't have to
 
 //CAMERA default translates
 float defaultTranslateX = -0.70;
@@ -24,8 +25,11 @@ int shipX = 1;
 float shipY = 0.25;
 int shipZ = 0;
 float[] shipZkeys = {0.5, 1.5};
-float[] shipAnglesX = { -PI/2, -3*PI/5, -2*PI/5 };  //bin 1 = default, bin 2 = forward, bin 3 = backwards
-float[] shipAnglesY = { 0, -PI/4, PI/4 };  //bin 1 = default, bin 2 = left, bin 3 = right
+float[] shipAnglesX = { -PI/2, -3*PI/5, -2*PI/5 };  //bin 0 = default, bin 1 = forward, bin 2 = backwards
+float[] shipAnglesY = { 0, -3*PI/4, 3*PI/4 };  //bin 0 = default, bin 1 = left, bin 2 = right
+int currShipAngleX = 0;
+int currShipAngleY = 0;
+  
   
 PImage floortext, tiletext, hardwoodtext, cosmictext; 
 boolean jump = true;   //snowman
@@ -317,19 +321,18 @@ void draw() {
   //SHIP
   pushMatrix();  //start ship
   
-
-  //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
-  //rotateX(angle);  //do X axis rotation for base (***special default of -PI/2
-  
-  
   x = shipXkeys[shipX];
   y = shipY;
   z = shipZkeys[shipZ];
   
   translate(x, y, z);
   scale(0.33);
-  rotateX(shipAnglesX[0]);      //start at -PI/2 (forward = -3*PI/5, backward = -2*PI/5)
-  rotateY(shipAnglesX[0]);      //start at 0 (right = PI/4, left = -PI/4)
+  
+  angleX = lerp(shipAnglesX[0], shipAnglesX[currShipAngleX], tship);
+  rotateX(angleX);      //start at -PI/2 (forward = -3*PI/5, backward = -2*PI/5)
+  
+  angleY = lerp(shipAnglesY[0], shipAnglesY[currShipAngleY], tship);
+  rotateY(angleY);      //start at 0 (right = PI/4, left = -PI/4)
   
   pushMatrix();  //start Ship 2.0
   
@@ -343,7 +346,7 @@ void draw() {
     ps.addParticle();
     ps.run();
   } else {
-    ps = new ParticleSystem(x+1, y-(2.0*tableHeight), z);
+    ps = new ParticleSystem(x+1.5, y-(2.0*tableHeight), z-0.5);
   }
   
   translate(0,tableHeight/2, 0);
@@ -362,6 +365,7 @@ void draw() {
   vertex(-0.4,0,0.6,0,0);
   vertex(0.4,0,0.6,0.6,0);
   
+  fill(100,50,0);
   //bottom
   vertex(0, 0, 0,1,1);
   vertex(0.4,0,0.6,0,0);
@@ -372,6 +376,7 @@ void draw() {
   vertex(0.4,0,0.6,0,0);
   vertex(0.6,0,0.4,0.6,0);
   
+  fill(100,50,50);
   //bottom
   vertex(0, 0, 0,1,1);
   vertex(0.6,0,0.4,0,0);
@@ -451,9 +456,14 @@ void draw() {
   }
   
   //SHIP LERPING
-  tship  = tship + 0.20 ;
+  if (shipLerping == true) {
+    tship  = tship + 0.05 ;
+  }
   if (tship > 1.0) {
     tship = 0;       //set to 0 to reset
+    currShipAngleX = 0;
+    currShipAngleY = 0;
+    shipLerping = false;
   } 
 } //<>//
 
@@ -476,20 +486,36 @@ void keyPressed() {
         setView1();
       }
       break;
-    case 'w':      //bottom left
-      shipZ = 0;
-      break;
-    case 's':      //bottom left
-      shipZ = 1;
-      break;
-    case 'a':      //bottom left
-      if (shipX > 0) {
-        shipX--;
+    case 'w':      //up
+      if (shipZ != 0) {
+        shipZ = 0;
+        currShipAngleX = 1;
+        tship = 0;
+        shipLerping = true;
       }
       break;
-    case 'd':      //bottom left
+    case 's':      //down
+      if (shipZ != 1) {
+        shipZ = 1;
+        currShipAngleX = 2;
+        tship = 0;
+        shipLerping = true;
+      }
+      break;
+    case 'a':      //left
+      if (shipX > 0) {
+        shipX--;
+        currShipAngleY = 1;
+        tship = 0;
+        shipLerping = true;
+      }
+      break;
+    case 'd':      //right
       if (shipX < 2) {
         shipX++;
+        currShipAngleY = 2;
+        tship = 0;
+        shipLerping = true;
       }
       break;
     case 'p':      //bottom left
