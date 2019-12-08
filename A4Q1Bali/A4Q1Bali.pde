@@ -52,9 +52,9 @@ void draw() {
   }
   
   if(perspective){
-    ortho(-1, 1, 1, -1, 2, 10);
+    ortho(-1, 1, 1, -1, 1, 10);  //2.10
   }else{
-    frustum(-1, 1, 1, -1, 2, 10);
+    frustum(-1, 1, 1, -1, 1, 10);  //2.10
   }
   
   camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ); //set the camera position
@@ -112,8 +112,22 @@ void draw() {
   pushMatrix();  //start table
   
   translate(keys[0][0], keys[0][1] - tableHeight, z);  //table moves
-  box(tableWidth, tableHeight, tableLength);  //table
+  //box(tableWidth, tableHeight, tableLength);  //table
   
+  //PLANE
+  pushMatrix();  //start plane
+  
+  translate(0, 0.25, 0);  //plane
+  beginShape(QUADS);
+  //texture(floortext);
+  fill(255);
+  vertex(-1.5, 0, -40, 0, 1);
+  vertex(-1.5, 0, 6, 1, 1);
+  vertex(1.5, 0, 6, 1, 0);
+  vertex(1.5, 0, -40, 0, 0);
+  endShape();
+  
+  popMatrix();  //end plane
   
   //OBJECTS
   for (int i = 1; i < keys.length-1; i++) {
@@ -132,9 +146,9 @@ void draw() {
     //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
     //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
   
-    float barrierWidth = 1.0;
+    float barrierWidth = 0.9;
     float barrierHeight = 0.5;
-    float barrierLength = 1.0;
+    float barrierLength = 0.9;
     box(barrierWidth, barrierHeight, barrierLength);  //barrier itself
     popMatrix();  //end barrier
   }
@@ -151,9 +165,9 @@ void draw() {
   //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
   //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
 
-  float barrierWidth = 1.0;
+  float barrierWidth = 0.9;
   float barrierHeight = 0.5;
-  float barrierLength = 1.0;
+  float barrierLength = 0.9;
   box(barrierWidth, barrierHeight, barrierLength);  //special end marker
   popMatrix();  //end special end marker
     
@@ -188,7 +202,7 @@ void draw() {
   popMatrix();  //end ship
   
   
-
+  
  
   
   //////////////////////////////////////////////////
@@ -227,9 +241,9 @@ void keyPressed() {
         setView0();
       } else {
         perspective = false;
-        defaultTranslateX = 0.33;
+        defaultTranslateX = 0.33;  //0.33
         defaultTranslateY = -0.1;
-        defaultTranslateZ = -1.5;
+        defaultTranslateZ = -0.315;  //1.5
         setView1();
       }
       break;
