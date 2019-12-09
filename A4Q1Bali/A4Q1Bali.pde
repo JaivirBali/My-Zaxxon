@@ -89,26 +89,44 @@ void draw() {
   
   
   //Axis for testing purposes (commented out)
-  strokeWeight(1.0);
+  //strokeWeight(1.0);
+  //beginShape(LINES);
+  //stroke(255,0,0);  //x
+  //vertex(-2,0,0);
+  //vertex(2,0,0);
+  //stroke(0,255,0);  //y
+  //vertex(0,-2,0);
+  //vertex(0,2,0);
+  //stroke(0,0,255);  //z
+  //vertex(0,0,-2);
+  //vertex(0,0,2);
+  //endShape();
+
+  
+  //Markers for bounding area for ship
+  pushMatrix(); //start bounding lines
+  
   beginShape(LINES);
-  stroke(255,0,0);  //x
+  stroke(255,0,0);  //Marker for top bound (x-axis)
   vertex(-2,0,0);
   vertex(2,0,0);
-  stroke(0,255,0);  //y
-  vertex(0,-2,0);
-  vertex(0,2,0);
-  stroke(0,0,255);  //z
-  vertex(0,0,-2);
-  vertex(0,0,2);
   endShape();
-
+  
+  translate(0,0,0.4);
+  beginShape(LINES);
+  stroke(0,0,255); //Marker for bottom bound (x-axis +2 in z direction)
+  vertex(-2,0,0);
+  vertex(2,0,0);
+  endShape();
+    
+  popMatrix();  //end bounding lines
   
   stroke(255);
   scale(0.2,0.2,0.2); //set the scene size
    
-   //Origin for testing purposes (commented out)
-  fill(255);  //origin
-  sphere(0.1);
+  //Origin for testing purposes (commented out)
+  //fill(255);  //origin
+  //sphere(0.1);
   
   
   //Drawing stuff now
@@ -130,7 +148,6 @@ void draw() {
   pushMatrix();  //start table
   
   translate(keys[0][0], keys[0][1] - tableHeight, z);  //table moves
-  //box(tableWidth, tableHeight, tableLength);  //table
   
   //PLANE
   pushMatrix();  //start plane
@@ -291,23 +308,23 @@ void draw() {
   }
   
   //////////////////////////////////////
-  //SPECIAL END MARKER
-  pushMatrix();  //start special end marker
-  fill(200,0,0);
+  //SPECIAL END MARKER (to remain commented out)
+  //pushMatrix();  //start special end marker
+  //fill(200,0,0);
   
-  x = keys[keys.length-1][0];       //lerp(keys[currKey][0], keys[nextKey][0], t);
-  y = keys[keys.length-1][1];       //lerp(keys[currKey][1], keys[nextKey][1], t);
-  z = keys[keys.length-1][2];       //lerp(keys[currKey][2], keys[nextKey][2], t);
-  translate(0, y, z);
+  //x = keys[keys.length-1][0];       //lerp(keys[currKey][0], keys[nextKey][0], t);
+  //y = keys[keys.length-1][1];       //lerp(keys[currKey][1], keys[nextKey][1], t);
+  //z = keys[keys.length-1][2];       //lerp(keys[currKey][2], keys[nextKey][2], t);
+  //translate(0, y, z);
   
-  //angle = lerp(keys[currKey][3], keys[nextKey][3], t);
-  //rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
+  ////angle = lerp(keys[currKey][3], keys[nextKey][3], t);
+  ////rotateY(angle);  //do Y axis rotation for base (***special default of 0) --> -PI (CW) to +PI (CCW)
 
-  float barrierWidth = 0.9;
-  float barrierHeight = 0.5;
-  float barrierLength = 0.9;
-  box(barrierWidth, barrierHeight, barrierLength);  //special end marker
-  popMatrix();  //end special end marker
+  //float barrierWidth = 0.9;
+  //float barrierHeight = 0.5;
+  //float barrierLength = 0.9;
+  //box(barrierWidth, barrierHeight, barrierLength);  //special end marker
+  //popMatrix();  //end special end marker
   ///////////////////////////////////////  
     
   popMatrix();  //end table
@@ -440,8 +457,6 @@ void draw() {
   
   
   //LEVEL LERPING
-  //call check tmod
-  
   collisionPause();  //check for forward collision due to natural forward movement (not keypress)
   
   if (currLerping == 1) {
@@ -550,19 +565,13 @@ void keyPressed() {
         }
       }
       break;
-    case 'p':      //bottom left
-      int lerpVal = (currLerping + 1) % 2;
-      pauseGame(lerpVal);
-      break;
+    //case 'p':      //pauses game manually (used for testing purposes)
+    //  int lerpVal = (currLerping + 1) % 2;
+    //  pauseGame(lerpVal);
+    //  break;
   } //end switch statement
 } //end keypressed function
 
-
-//float[] shipXkeys = {-2.5, -1.5, -0.5};
-//int shipX = 1;
-//float shipY = 0.25;
-//int shipZ = 0;
-//float[] shipZkeys = {0.5, 1.5};
 
 void collisionPause () {  //stop ship movement if forward collision occurs with natural movement
   boolean keepAnimating = validForwardMove(-1);
@@ -584,17 +593,14 @@ boolean validForwardMove (int newZLocation) {  //checks for forward or backward 
       futureTmod += 0;       //tmod is ahead of actual ship, therefore we check if tmod = location of object
     }
   }
-  
   if (newZLocation == 0) {  //collision check on "w" keypress, shipZ = 1 in this case (1 unit back)
     futureTmod += 0;        //do nothing since tmod = object location we will collide wtih
   }
-  
   if (newZLocation == 1) {  //collision check on "s" keypress, shipZ = 0 in this case (1 unit front)
     futureTmod -= 5;        //offset by -5 to check if collision with object behind us
   }
   
-  
-  //LOCATIONS
+  //LOCATIONS THAT CAN COLLIDE
   if(futureTmod == 15) {   //middle
     if (shipX == 1) {
       returnVal = false;
@@ -616,7 +622,6 @@ boolean validForwardMove (int newZLocation) {  //checks for forward or backward 
     }
   }
   
-  
   return returnVal;
 }
 
@@ -628,6 +633,7 @@ boolean validSideMove (int newXLocation) {  //checks for side collisions
     actualTmod -= 5;
   }
   
+  //LOCATIONS THAT CAN COLLIDE
   if(actualTmod == 15) {   //middle
     if (newXLocation == 1) {
       returnVal = false;
