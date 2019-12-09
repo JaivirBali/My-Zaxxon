@@ -1,5 +1,7 @@
 Jaivir Bali (7775370) A4Q1
 
+*** PLEASE UNZIP THE FILE OR TEXTURES WILL NOT WORK ***
+
 TEXTURES:
 All textures obtained from textures.com
 
