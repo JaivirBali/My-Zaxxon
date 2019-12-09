@@ -7,7 +7,7 @@ boolean t0 = true;
 float t = 0;
 int t0time;
 int pauseTime;
-float tmod = 0;
+int tmod = 0;
 float tship = 0;
   
 float x, y, z, angleX, angleY;
@@ -120,15 +120,14 @@ void draw() {
   
   float tableHeight = 0.5;  //adjustment for boxes to shift to be above plane
 
-  
-  if (t < 1.05) {
-    tmod = t - ((t*100.0 % 5.0) / 100.0);  //animates 1 tile movement per second for 20 seconds
+  if (t < 1.05) {    //animates 1 tile movement per second for 20 seconds
+    tmod = int((t*100) - (t*100 % 5));  //taken as int for better collision detection (floats lack precision)
   }
   println("tmod = "+ tmod);
   //println("t = "+ t);
   
-  z = lerp(keys[0][2], 20.0, tmod);
-  //z = keys[0][2];
+  float floatTMOD = (float(tmod)) / 100.0;  //need conversion for method call below
+  z = lerp(keys[0][2], 20.0, floatTMOD);
   
   //TABLE
   pushMatrix();  //start table
@@ -550,27 +549,27 @@ void keyPressed() {
 boolean validSideMove (int newXLocation) {
   boolean returnVal = true;
   
-  float actualTmod = tmod;
+  int actualTmod = tmod;
   if (shipZ == 1) {
-    actualTmod -= 0.05;
+    actualTmod -= 5;
   }
   
-  if(actualTmod == 0.15) {   //middle
+  if(actualTmod == 15) {   //middle
     if (newXLocation == 1) {
       returnVal = false;
     }
   }
-  if(actualTmod == 0.35) {   //left and right
+  if(actualTmod == 35) {   //left and right
     if (newXLocation != 1) {
       returnVal = false;
     }
   }
-  if(actualTmod == 0.55) {   //right
+  if(actualTmod == 55) {   //right
     if (newXLocation == 2) {
       returnVal = false;
     }
   }
-  if(actualTmod == 0.85) {  //left
+  if(actualTmod == 85) {  //left
     if (newXLocation == 2) {
       returnVal = false;
     }
