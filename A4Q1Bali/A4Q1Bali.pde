@@ -124,7 +124,7 @@ void draw() {
   if (t < 1.05) {
     tmod = t - ((t*100.0 % 5.0) / 100.0);  //animates 1 tile movement per second for 20 seconds
   }
-  //println("tmod = "+ tmod);
+  println("tmod = "+ tmod);
   //println("t = "+ t);
   
   z = lerp(keys[0][2], 20.0, tmod);
@@ -467,6 +467,18 @@ void draw() {
   } 
 } //<>//
 
+//Pauses game on key press or collision
+void pauseGame() {
+  if (currLerping == true) {
+    currLerping = false;
+    pauseTime = millis();
+    //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+  } else {
+    t0time = t0time + (millis() - pauseTime);
+    //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+    currLerping = true;
+  }
+}
 
 void keyPressed() {
   switch(key) {
@@ -504,35 +516,68 @@ void keyPressed() {
       break;
     case 'a':      //left
       if (shipX > 0) {
-        shipX--;
-        currShipAngleY = 1;
-        tship = 0;
-        shipLerping = true;
+        if (validSideMove(shipX-1) == true) {
+          shipX--;
+          currShipAngleY = 1;
+          tship = 0;
+          shipLerping = true;
+        }
       }
       break;
     case 'd':      //right
       if (shipX < 2) {
-        shipX++;
-        currShipAngleY = 2;
-        tship = 0;
-        shipLerping = true;
+        if (validSideMove(shipX+1) == true) {
+          shipX++;
+          currShipAngleY = 2;
+          tship = 0;
+          shipLerping = true;
+        }
       }
       break;
     case 'p':      //bottom left
-      if (currLerping == true) {
-        currLerping = false;
-        pauseTime = millis();
-        //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
-      } else {
-        t0time = t0time + (millis() - pauseTime);
-        //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
-        currLerping = true;
-      }
-      
+      pauseGame();
       break;
   } //end switch statement
 } //end keypressed function
 
+
+//float[] shipXkeys = {-2.5, -1.5, -0.5};
+//int shipX = 1;
+//float shipY = 0.25;
+//int shipZ = 0;
+//float[] shipZkeys = {0.5, 1.5};
+
+boolean validSideMove (int newXLocation) {
+  boolean returnVal = true;
+  
+  float actualTmod = tmod;
+  if (shipZ == 1) {
+    actualTmod -= 0.05;
+  }
+  
+  if(actualTmod == 0.15) {   //middle
+    if (newXLocation == 1) {
+      returnVal = false;
+    }
+  }
+  if(actualTmod == 0.35) {   //left and right
+    if (newXLocation != 1) {
+      returnVal = false;
+    }
+  }
+  if(actualTmod == 0.55) {   //right
+    if (newXLocation == 2) {
+      returnVal = false;
+    }
+  }
+  if(actualTmod == 0.85) {  //left
+    if (newXLocation == 2) {
+      returnVal = false;
+    }
+  }
+  
+  return returnVal;
+}
   
 void setView0() {
   eyeX = 2;
