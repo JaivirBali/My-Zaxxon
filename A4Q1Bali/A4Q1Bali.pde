@@ -442,7 +442,7 @@ void draw() {
   //LEVEL LERPING
   //call check tmod
   
-  //collisionPause();  //check for forward collision due to natural forward movement (not keypress)
+  collisionPause();  //check for forward collision due to natural forward movement (not keypress)
   
   if (currLerping == 1) {
     t  = (millis() - t0time) / 20000.0;
@@ -509,6 +509,7 @@ void keyPressed() {
     case 'w':      //up
       if (shipZ != 0) {
         if (validForwardMove(0) == true) {
+          pauseGame(1);
           shipZ = 0;
           currShipAngleX = 1;
           tship = 0;
@@ -519,6 +520,7 @@ void keyPressed() {
     case 's':      //down
       if (shipZ != 1) {
         if (validForwardMove(1) == true) {
+          pauseGame(1);
           shipZ = 1;
           currShipAngleX = 2;
           tship = 0;
@@ -529,6 +531,7 @@ void keyPressed() {
     case 'a':      //left
       if (shipX > 0) {
         if (validSideMove(shipX-1) == true) {
+          pauseGame(1);
           shipX--;
           currShipAngleY = 1;
           tship = 0;
@@ -539,6 +542,7 @@ void keyPressed() {
     case 'd':      //right
       if (shipX < 2) {
         if (validSideMove(shipX+1) == true) {
+          pauseGame(1);
           shipX++;
           currShipAngleY = 2;
           tship = 0;
