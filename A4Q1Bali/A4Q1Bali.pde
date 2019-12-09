@@ -11,7 +11,7 @@ int tmod = 0;
 float tship = 0;
   
 float x, y, z, angleX, angleY;
-boolean currLerping = true;   //don't want to cancel animation while lerping
+int currLerping = 1;   //don't want to cancel animation while lerping, 1 means lerp and 0 means don't
 boolean shipLerping = false;  //don't want to lerp when we don't have to
 
 //CAMERA default translates
@@ -120,10 +120,7 @@ void draw() {
   
   float tableHeight = 0.5;  //adjustment for boxes to shift to be above plane
 
-  if (t < 1.05) {    //animates 1 tile movement per second for 20 seconds
-    tmod = int((t*100) - (t*100 % 5));  //taken as int for better collision detection (floats lack precision)
-  }
-  println("tmod = "+ tmod);
+  //println("tmod = "+ tmod);
   //println("t = "+ t);
   
   float floatTMOD = (float(tmod)) / 100.0;  //need conversion for method call below
@@ -443,8 +440,17 @@ void draw() {
   
   
   //LEVEL LERPING
-  if (currLerping == true) {
+  //call check tmod
+  
+  //collisionPause();  //check for forward collision due to natural forward movement (not keypress)
+  
+  if (currLerping == 1) {
     t  = (millis() - t0time) / 20000.0;
+    
+    //determine tmod since we want to lerp in steps
+    if (t < 1.05) {    //animates 1 tile movement per second for 20 seconds
+      tmod = int((t*100) - (t*100 % 5));  //taken as int for better collision detection (floats lack precision)
+    }
   }
   if (t >= 1.05) {
     t = 0;       //set to 0 to reset, set to 1 to make it stay at end
@@ -467,15 +473,18 @@ void draw() {
 } //<>//
 
 //Pauses game on key press or collision
-void pauseGame() {
-  if (currLerping == true) {
-    currLerping = false;
-    pauseTime = millis();
-    //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
-  } else {
-    t0time = t0time + (millis() - pauseTime);
-    //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
-    currLerping = true;
+void pauseGame(int shouldLerp) {
+  //only do something if there is a difference
+  if (currLerping != shouldLerp) {  
+    if (shouldLerp == 0) {
+      currLerping = 0;
+      pauseTime = millis();
+      //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+    } else {
+      t0time = t0time + (millis() - pauseTime);
+      //println("T0 time = " + t0time + ", pauseTime = " + pauseTime);
+      currLerping = 1;
+    }
   }
 }
 
@@ -499,18 +508,22 @@ void keyPressed() {
       break;
     case 'w':      //up
       if (shipZ != 0) {
-        shipZ = 0;
-        currShipAngleX = 1;
-        tship = 0;
-        shipLerping = true;
+        if (validForwardMove(0) == true) {
+          shipZ = 0;
+          currShipAngleX = 1;
+          tship = 0;
+          shipLerping = true;
+        }
       }
       break;
     case 's':      //down
       if (shipZ != 1) {
-        shipZ = 1;
-        currShipAngleX = 2;
-        tship = 0;
-        shipLerping = true;
+        if (validForwardMove(1) == true) {
+          shipZ = 1;
+          currShipAngleX = 2;
+          tship = 0;
+          shipLerping = true;
+        }
       }
       break;
     case 'a':      //left
@@ -534,7 +547,8 @@ void keyPressed() {
       }
       break;
     case 'p':      //bottom left
-      pauseGame();
+      int lerpVal = (currLerping + 1) % 2;
+      pauseGame(lerpVal);
       break;
   } //end switch statement
 } //end keypressed function
@@ -546,11 +560,67 @@ void keyPressed() {
 //int shipZ = 0;
 //float[] shipZkeys = {0.5, 1.5};
 
-boolean validSideMove (int newXLocation) {
+void collisionPause () {  //stop ship movement if forward collision occurs with natural movement
+  boolean keepAnimating = validForwardMove(-1);
+  //println("shouldPause = "+ shouldPause);
+  if (keepAnimating == false) {
+    pauseGame(0);  //stop lerping
+  }
+}
+
+boolean validForwardMove (int newZLocation) {  //checks for forward or backward collision
+  boolean returnVal = true;
+ 
+  int futureTmod = tmod;
+  
+  if (newZLocation == -1) {  //general collision check as world moves forward
+    if (shipZ == 0) {        //checking if ship is in forward position
+      futureTmod += 5;       //object we are colliding with will be 5 units ahead, want to stop before tmod = location
+    } else {                 //ship in back position in this case
+      futureTmod += 0;       //tmod is ahead of actual ship, therefore we check if tmod = location of object
+    }
+  }
+  
+  if (newZLocation == 0) {  //collision check on "w" keypress, shipZ = 1 in this case (1 unit back)
+    futureTmod += 0;        //do nothing since tmod = object location we will collide wtih
+  }
+  
+  if (newZLocation == 1) {  //collision check on "s" keypress, shipZ = 0 in this case (1 unit front)
+    futureTmod -= 5;        //offset by -5 to check if collision with object behind us
+  }
+  
+  
+  //LOCATIONS
+  if(futureTmod == 15) {   //middle
+    if (shipX == 1) {
+      returnVal = false;
+    }
+  }
+  if(futureTmod == 35) {   //left and right
+    if (shipX != 1) {
+      returnVal = false;
+    }
+  }
+  if(futureTmod == 55) {   //right
+    if (shipX == 2) {
+      returnVal = false;
+    }
+  }
+  if(futureTmod == 85) {  //left
+    if (shipX == 0) {
+      returnVal = false;
+    }
+  }
+  
+  
+  return returnVal;
+}
+
+boolean validSideMove (int newXLocation) {  //checks for side collisions
   boolean returnVal = true;
   
   int actualTmod = tmod;
-  if (shipZ == 1) {
+  if (shipZ == 1) {  //offset for if ship is forward or back
     actualTmod -= 5;
   }
   
@@ -570,7 +640,7 @@ boolean validSideMove (int newXLocation) {
     }
   }
   if(actualTmod == 85) {  //left
-    if (newXLocation == 2) {
+    if (newXLocation == 0) {
       returnVal = false;
     }
   }
